@@ -76,16 +76,35 @@ const DEMO_ARTWORKS = [
 ];
 
 /* ── QUERY GROQ PER SANITY ────────────────────────────────────────────────── */
-const GROQ_QUERY = `*[_type == "artwork"] | order(year desc) {
-  _id,
-  title,
-  "slug": slug.current,
-  category,
-  year,
-  technique,
-  size,
-  description,
-  image
+const GROQ_QUERY = `{
+  "artworks": *[_type == "artwork"] | order(year desc) {
+    _id,
+    title,
+    "slug": slug.current,
+    category,
+    year,
+    technique,
+    size,
+    description,
+    image
+  },
+  "settings": *[_type == "siteSettings"][0] {
+    artistName,
+    heroTitleLine1,
+    heroTitleLine2Italic,
+    heroTitleLine3,
+    heroSub,
+    aboutTitle,
+    aboutBody,
+    aboutImage,
+    statArtworks,
+    statExhibitions,
+    statYears,
+    contactTitle,
+    contactSub,
+    instagramUrl,
+    behanceUrl
+  }
 }`;
 
 /* ── STATO APPLICAZIONE ──────────────────────────────────────────────────── */
@@ -98,14 +117,13 @@ let currentFilter = 'all';
 document.addEventListener('DOMContentLoaded', async () => {
   initCursor();
   initHeader();
-  initHeroTitles();
   initFilters();
   animateLoader();
   setupForm();
   setupRevealObserver();
   document.getElementById('year').textContent = new Date().getFullYear();
 
-  // Carica opere
+  // Carica opere e testi
   await loadArtworks();
 });
 
@@ -221,21 +239,30 @@ async function loadArtworks() {
   grid.style.display    = 'none';
 
   try {
-    // Controlla se Sanity è configurato
+    // Controlla se Sanity è configurato con un Project ID reale
     if (window.SANITY_CONFIG?.projectId &&
-        window.SANITY_CONFIG.projectId !== 'INSERISCI_IL_TUO_PROJECT_ID') {
+        window.SANITY_CONFIG.projectId !== 'INSERISCI_IL_TUO_PROJECT_ID' &&
+        window.SANITY_CONFIG.projectId !== '') {
 
-      const results = await window.sanityQuery(GROQ_QUERY);
-      allArtworks = results.map(art => ({
+      const data = await window.sanityQuery(GROQ_QUERY);
+      
+      // 1. Applica i testi dinamici presi da Sanity
+      if (data.settings) {
+        applySiteSettings(data.settings);
+      }
+
+      // 2. Elabora le immagini delle opere d'arte
+      allArtworks = (data.artworks || []).map(art => ({
         ...art,
         imageUrl: art.image?.asset?._ref
           ? window.sanityImageUrl(art.image.asset._ref, { width: 800, quality: 85 })
           : '',
       }));
+
     } else {
-      // Fallback dati demo
+      // Fallback dati demo se non c'è Sanity configurato nel file sanity.js
       console.info('[Portfolio] Sanity non configurato — uso dati demo.');
-      await new Promise(r => setTimeout(r, 600)); // simula latenza
+      await new Promise(r => setTimeout(r, 600));
       allArtworks = DEMO_ARTWORKS;
     }
   } catch (err) {
