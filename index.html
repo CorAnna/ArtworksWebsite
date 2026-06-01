@@ -1,1 +1,204 @@
-
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio — Arte</title>
+  <meta name="description" content="Portfolio artistico — opere originali di pittura, scultura e arte digitale." />
+ 
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@200;300;400&display=swap" rel="stylesheet" />
+ 
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+ 
+  <!-- ── CURSORE PERSONALIZZATO ── -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+ 
+  <!-- ── LOADER ── -->
+  <div class="loader" id="loader">
+    <div class="loader-inner">
+      <span class="loader-text">Caricamento</span>
+      <div class="loader-bar"><div class="loader-fill" id="loaderFill"></div></div>
+    </div>
+  </div>
+ 
+  <!-- ── HEADER / NAV ── -->
+  <header class="header" id="header">
+    <a href="#" class="logo">
+      <span class="logo-name">NOME ARTISTA</span>
+      <span class="logo-tag">opere originali</span>
+    </a>
+    <nav class="nav" id="nav">
+      <a href="#lavori" class="nav-link" data-filter="all">Tutte le opere</a>
+      <a href="#lavori" class="nav-link" data-filter="pittura">Pittura</a>
+      <a href="#lavori" class="nav-link" data-filter="scultura">Scultura</a>
+      <a href="#lavori" class="nav-link" data-filter="disegno">Disegno</a>
+      <a href="#contatti" class="nav-link">Contatti</a>
+    </nav>
+    <button class="nav-toggle" id="navToggle" aria-label="Apri menu">
+      <span></span><span></span>
+    </button>
+  </header>
+ 
+  <!-- ── HERO ── -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <div class="hero-noise"></div>
+    </div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Portfolio artistico</p>
+      <h1 class="hero-title">
+        <span class="hero-title-line">La bellezza</span>
+        <span class="hero-title-line italic">risiede</span>
+        <span class="hero-title-line">nell'opera.</span>
+      </h1>
+      <p class="hero-sub">Opere originali che esplorano forma, colore e materia.</p>
+      <a href="#lavori" class="hero-cta">
+        <span>Esplora le opere</span>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Scorri</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+ 
+  <!-- ── FILTRI ── -->
+  <section class="filters-section" id="lavori">
+    <div class="filters-bar">
+      <button class="filter-btn active" data-filter="all">Tutto</button>
+      <button class="filter-btn" data-filter="pittura">Pittura</button>
+      <button class="filter-btn" data-filter="scultura">Scultura</button>
+      <button class="filter-btn" data-filter="disegno">Disegno</button>
+    </div>
+  </section>
+ 
+  <!-- ── GRIGLIA OPERE ── -->
+  <main class="gallery-section">
+    <!-- Stato loading -->
+    <div class="gallery-loading" id="galleryLoading">
+      <div class="skeleton-grid">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card tall"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card tall"></div>
+        <div class="skeleton-card"></div>
+      </div>
+    </div>
+ 
+    <!-- Stato errore / fallback demo -->
+    <div class="gallery-grid" id="galleryGrid" style="display:none"></div>
+ 
+    <!-- Messaggio se nessun risultato -->
+    <div class="gallery-empty" id="galleryEmpty" style="display:none">
+      <p>Nessuna opera trovata per questo filtro.</p>
+    </div>
+  </main>
+ 
+  <!-- ── LIGHTBOX ── -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Visualizzatore opera">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Chiudi">✕</button>
+    <button class="lightbox-prev" id="lightboxPrev" aria-label="Opera precedente">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <button class="lightbox-next" id="lightboxNext" aria-label="Opera successiva">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="lightbox-inner">
+      <div class="lightbox-img-wrap">
+        <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+      </div>
+      <div class="lightbox-info">
+        <span class="lightbox-category" id="lightboxCategory"></span>
+        <h2 class="lightbox-title" id="lightboxTitle"></h2>
+        <p class="lightbox-desc" id="lightboxDesc"></p>
+        <dl class="lightbox-meta">
+          <div><dt>Anno</dt><dd id="lightboxYear"></dd></div>
+          <div><dt>Tecnica</dt><dd id="lightboxTechnique"></dd></div>
+          <div><dt>Dimensioni</dt><dd id="lightboxSize"></dd></div>
+        </dl>
+        <a class="lightbox-inquire" id="lightboxInquire" href="#contatti">Richiedi informazioni →</a>
+      </div>
+    </div>
+  </div>
+  <div class="lightbox-backdrop" id="lightboxBackdrop"></div>
+ 
+  <!-- ── ABOUT ── -->
+  <section class="about-section" id="about">
+    <div class="about-inner">
+      <div class="about-text">
+        <p class="section-label">Chi sono</p>
+        <h2 class="about-title">Ogni opera è<br><em>un dialogo</em> con<br>il mondo.</h2>
+        <p class="about-body">
+          Descrivi qui il tuo percorso artistico, la tua formazione e le tue influenze.
+          Racconta cosa ti ispira e qual è il filo conduttore della tua ricerca estetica.
+        </p>
+        <a href="#contatti" class="about-cta">Contattami</a>
+      </div>
+      <div class="about-visual">
+        <div class="about-img-frame">
+          <img src="https://images.unsplash.com/photo-1509343256512-d77a5cb3791b?w=600&q=80" alt="Artista nel suo studio" class="about-img" />
+          <div class="about-img-overlay"></div>
+        </div>
+        <div class="about-stats">
+          <div class="stat"><span class="stat-num" data-target="120">0</span><span class="stat-label">Opere create</span></div>
+          <div class="stat"><span class="stat-num" data-target="18">0</span><span class="stat-label">Esposizioni</span></div>
+          <div class="stat"><span class="stat-num" data-target="9">0</span><span class="stat-label">Anni di attività</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- ── CONTATTI ── -->
+  <section class="contact-section" id="contatti">
+    <div class="contact-inner">
+      <p class="section-label">Contatti</p>
+      <h2 class="contact-title">Hai una domanda<br>su un'opera?</h2>
+      <p class="contact-sub">Scrivimi per informazioni su commissioni, esposizioni o acquisti.</p>
+      <form class="contact-form" id="contactForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" placeholder="Il tuo nome" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="la-tua@email.it" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="messaggio">Messaggio</label>
+          <textarea id="messaggio" name="messaggio" rows="5" placeholder="Scrivi qui il tuo messaggio…" required></textarea>
+        </div>
+        <button type="submit" class="form-submit">
+          <span>Invia messaggio</span>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 9h14M9 3l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <p class="form-success" id="formSuccess" style="display:none">✓ Messaggio inviato! Ti rispondo presto.</p>
+      </form>
+    </div>
+  </section>
+ 
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <p class="footer-name">NOME ARTISTA</p>
+      <p class="footer-copy">&copy; <span id="year"></span> — Tutti i diritti riservati</p>
+      <div class="footer-links">
+        <a href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://behance.net" target="_blank" rel="noopener">Behance</a>
+      </div>
+    </div>
+  </footer>
+ 
+  <script src="js/sanity.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
