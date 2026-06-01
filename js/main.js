@@ -21,7 +21,7 @@ const DEMO_ARTWORKS = [
     _id: 'd2', slug: 'forma-nella-pietra',
     title: 'Forma nella Pietra', category: 'scultura',
     year: 2022, technique: 'Marmo di Carrara', size: '40 × 60 × 30 cm',
-    description: 'La materia rivela la propria anima quando l'artista sa solo togliere.',
+    description: "La materia rivela la propria anima quando l'artista sa solo togliere.",
     imageUrl: 'https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=600&q=80',
   },
   {
@@ -49,7 +49,7 @@ const DEMO_ARTWORKS = [
     _id: 'd6', slug: 'linee-del-vento',
     title: 'Linee del Vento', category: 'disegno',
     year: 2022, technique: 'Inchiostro di China', size: '35 × 50 cm',
-    description: 'L'inchiostro traccia il moto invisibile dell'aria sulla superficie bianca.',
+    description: "L'inchiostro traccia il moto invisibile dell'aria sulla superficie bianca.",
     imageUrl: 'https://images.unsplash.com/photo-1605721911519-3dfeb3be25e7?w=600&q=80',
   },
   {
@@ -70,7 +70,7 @@ const DEMO_ARTWORKS = [
     _id: 'd9', slug: 'geometria-organica',
     title: 'Geometria Organica', category: 'scultura',
     year: 2023, technique: 'Legno di olivo', size: '30 × 45 × 20 cm',
-    description: 'L'ordine matematico e la curva naturale dialogano nel medesimo oggetto.',
+    description: "L'ordine matematico e la curva naturale dialogano nel medesimo oggetto.",
     imageUrl: 'https://images.unsplash.com/photo-1578321272176-b7bbc0679853?w=600&q=80',
   },
 ];
