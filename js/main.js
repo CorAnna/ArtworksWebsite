@@ -104,7 +104,12 @@ const GROQ_QUERY = `{
     contactSub,
     instagramUrl,
     behanceUrl
-  }
+  },
+  "categories": *[_type == "category"] | order(title asc) {
+    _id,
+    title,
+    "slug": slug.current
+  },
 }`;
 
 /* ── STATO APPLICAZIONE ──────────────────────────────────────────────────── */
@@ -129,7 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 /* ── LOADER ─────────────────────────────────────────────────────────────────── */
 function animateLoader() {
-  const fill   = document.getElementById('loaderFill');
+  const fill = document.getElementById('loaderFill');
   const loader = document.getElementById('loader');
   // Simula progresso
   fill.style.width = '60%';
@@ -139,7 +144,7 @@ function animateLoader() {
 
 /* ── CURSORE PERSONALIZZATO ──────────────────────────────────────────────── */
 function initCursor() {
-  const cursor    = document.getElementById('cursor');
+  const cursor = document.getElementById('cursor');
   const cursorDot = document.getElementById('cursorDot');
   if (!cursor) return;
 
@@ -148,7 +153,7 @@ function initCursor() {
   document.addEventListener('mousemove', e => {
     mx = e.clientX; my = e.clientY;
     cursorDot.style.left = mx + 'px';
-    cursorDot.style.top  = my + 'px';
+    cursorDot.style.top = my + 'px';
   });
 
   // Lag morbido
@@ -156,7 +161,7 @@ function initCursor() {
     cx += (mx - cx) * 0.12;
     cy += (my - cy) * 0.12;
     cursor.style.left = cx + 'px';
-    cursor.style.top  = cy + 'px';
+    cursor.style.top = cy + 'px';
     requestAnimationFrame(animate);
   }
   animate();
@@ -173,14 +178,14 @@ function initCursor() {
     }
   });
   document.addEventListener('mousedown', () => cursor.classList.add('clicking'));
-  document.addEventListener('mouseup',   () => cursor.classList.remove('clicking'));
+  document.addEventListener('mouseup', () => cursor.classList.remove('clicking'));
 }
 
 /* ── HEADER SCROLL ───────────────────────────────────────────────────────── */
 function initHeader() {
-  const header    = document.getElementById('header');
+  const header = document.getElementById('header');
   const navToggle = document.getElementById('navToggle');
-  const nav       = document.getElementById('nav');
+  const nav = document.getElementById('nav');
 
   window.addEventListener('scroll', () => {
     header.classList.toggle('scrolled', window.scrollY > 60);
@@ -233,26 +238,37 @@ function setFilter(filter) {
 /* ── CARICAMENTO OPERE DA SANITY ─────────────────────────────────────────── */
 async function loadArtworks() {
   const loading = document.getElementById('galleryLoading');
-  const grid    = document.getElementById('galleryGrid');
+  const grid = document.getElementById('galleryGrid');
 
   loading.style.display = 'block';
-  grid.style.display    = 'none';
+  grid.style.display = 'none';
 
   try {
-    // Controlla se Sanity è configurato con un Project ID reale
     if (window.SANITY_CONFIG?.projectId &&
-        window.SANITY_CONFIG.projectId !== 'INSERISCI_IL_TUO_PROJECT_ID' &&
-        window.SANITY_CONFIG.projectId !== '') {
+      window.SANITY_CONFIG.projectId !== 'INSERISCI_IL_TUO_PROJECT_ID' &&
+      window.SANITY_CONFIG.projectId !== '') {
 
       const data = await window.sanityQuery(GROQ_QUERY);
-      
-      // 1. Applica i testi dinamici presi da Sanity
+
       if (data.settings) {
         applySiteSettings(data.settings);
       }
 
-      // 2. Elabora le immagini delle opere d'arte
+      // 1. Genera i pulsanti dei filtri in modo dinamico!
+      if (data.categories && data.categories.length > 0) {
+        renderFilterButtons(data.categories);
+      }
+
+      // 2. Elabora le opere usando lo slug della categoria come filtro
       allArtworks = (data.artworks || []).map(art => ({
+        ...art,
+        // Usiamo lo slug della categoria per i filtri interni del codice
+        category: art.categorySlug || '',
+        // Questo testo apparirà invece sopra le foto nella griglia
+        categoryName: art.category || ''
+      }));
+
+      allArtworks = allArtworks.map(art => ({
         ...art,
         imageUrl: art.image?.asset?._ref
           ? window.sanityImageUrl(art.image.asset._ref, { width: 800, quality: 85 })
@@ -260,7 +276,6 @@ async function loadArtworks() {
       }));
 
     } else {
-      // Fallback dati demo se non c'è Sanity configurato nel file sanity.js
       console.info('[Portfolio] Sanity non configurato — uso dati demo.');
       await new Promise(r => setTimeout(r, 600));
       allArtworks = DEMO_ARTWORKS;
@@ -276,7 +291,28 @@ async function loadArtworks() {
   initLightbox();
 }
 
-/* ── APPLICA IMPOSTAZIONI SITO NELL'HTML ──────────────────────────────────── */
+// ── GENERA PULSANTI FILTRO DINAMICI ────────────────────────────────────── */
+function renderFilterButtons(categories) {
+  const filterContainer = document.querySelector('.filters-container'); // o la classe del tuo contenitore dei pulsanti
+  const navFiltersContainer = document.getElementById('navFilters'); // se hai i filtri anche nel menu mobile
+
+  // Genera l'HTML per i pulsanti (partendo sempre da "Tutti / All")
+  let buttonsHTML = `<button class="filter-btn active" data-filter="all">Tutti</button>`;
+
+  categories.forEach(cat => {
+    buttonsHTML += `<button class="filter-btn" data-filter="${cat.slug}">${cat.title}</button>`;
+  });
+
+  // Inserisce i pulsanti nella pagina
+  if (filterContainer) {
+    filterContainer.innerHTML = buttonsHTML;
+  }
+
+  // Ri-inizializza i click sui nuovi pulsanti appena creati
+  initFilters();
+}
+
+// ── APPLICA IMPOSTAZIONI SITO NELL'HTML ──────────────────────────────────── */
 function applySiteSettings(settings) {
   // Nome Artista nell'Header e nel Footer
   if (settings.artistName) {
@@ -329,7 +365,7 @@ function applySiteSettings(settings) {
   // Links Social nel Footer
   const instaLinks = document.querySelectorAll('a[href*="instagram.com"]');
   const behanceLinks = document.querySelectorAll('a[href*="behance.net"]');
-  
+
   if (settings.instagramUrl) {
     instaLinks.forEach(link => link.href = settings.instagramUrl);
   }
@@ -340,17 +376,17 @@ function applySiteSettings(settings) {
 
 /* ── RENDER GRIGLIA ──────────────────────────────────────────────────────── */
 function renderGallery(artworks) {
-  const grid  = document.getElementById('galleryGrid');
+  const grid = document.getElementById('galleryGrid');
   const empty = document.getElementById('galleryEmpty');
 
   if (!artworks.length) {
-    grid.style.display  = 'none';
+    grid.style.display = 'none';
     empty.style.display = 'block';
     return;
   }
 
   empty.style.display = 'none';
-  grid.style.display  = 'block';
+  grid.style.display = 'block';
 
   grid.innerHTML = artworks.map((art, idx) => `
     <article class="gallery-item reveal"
@@ -367,7 +403,7 @@ function renderGallery(artworks) {
       />
       <div class="gallery-item-overlay">
         <div class="gallery-item-info">
-          <span class="gallery-item-cat">${art.category || ''}</span>
+          <span class="gallery-item-cat">${art.categoryName || ''}</span>
           <span class="gallery-item-title">${art.title}</span>
         </div>
       </div>
@@ -395,8 +431,8 @@ function renderGallery(artworks) {
 function initLightbox() {
   const backdrop = document.getElementById('lightboxBackdrop');
   const closeBtn = document.getElementById('lightboxClose');
-  const prevBtn  = document.getElementById('lightboxPrev');
-  const nextBtn  = document.getElementById('lightboxNext');
+  const prevBtn = document.getElementById('lightboxPrev');
+  const nextBtn = document.getElementById('lightboxNext');
 
   backdrop.addEventListener('click', closeLightbox);
   closeBtn.addEventListener('click', closeLightbox);
@@ -405,8 +441,8 @@ function initLightbox() {
 
   document.addEventListener('keydown', e => {
     if (!document.getElementById('lightbox').classList.contains('open')) return;
-    if (e.key === 'Escape')     closeLightbox();
-    if (e.key === 'ArrowLeft')  navigateLightbox(-1);
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') navigateLightbox(-1);
     if (e.key === 'ArrowRight') navigateLightbox(+1);
   });
 }
@@ -419,12 +455,12 @@ function openLightbox(index) {
   const img = document.getElementById('lightboxImg');
   img.src = art.imageUrl || '';
   img.alt = art.title;
-  document.getElementById('lightboxCategory').textContent  = art.category || '';
-  document.getElementById('lightboxTitle').textContent     = art.title;
-  document.getElementById('lightboxDesc').textContent      = art.description || '';
-  document.getElementById('lightboxYear').textContent      = art.year || '';
+  document.getElementById('lightboxCategory').textContent = art.category || '';
+  document.getElementById('lightboxTitle').textContent = art.title;
+  document.getElementById('lightboxDesc').textContent = art.description || '';
+  document.getElementById('lightboxYear').textContent = art.year || '';
   document.getElementById('lightboxTechnique').textContent = art.technique || '';
-  document.getElementById('lightboxSize').textContent      = art.size || '';
+  document.getElementById('lightboxSize').textContent = art.size || '';
 
   document.getElementById('lightbox').classList.add('open');
   document.getElementById('lightboxBackdrop').classList.add('open');
@@ -471,13 +507,13 @@ function animateCounters() {
   const obs = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
-      const el     = entry.target;
+      const el = entry.target;
       const target = parseInt(el.dataset.target) || 0;
-      const dur    = 1800;
-      const step   = 16;
-      const inc    = target / (dur / step);
-      let current  = 0;
-      const timer  = setInterval(() => {
+      const dur = 1800;
+      const step = 16;
+      const inc = target / (dur / step);
+      let current = 0;
+      const timer = setInterval(() => {
         current += inc;
         if (current >= target) { el.textContent = target; clearInterval(timer); }
         else el.textContent = Math.floor(current);
@@ -490,7 +526,7 @@ function animateCounters() {
 
 /* ── FORM CONTATTI ────────────────────────────────────────────────────────── */
 function setupForm() {
-  const form    = document.getElementById('contactForm');
+  const form = document.getElementById('contactForm');
   const success = document.getElementById('formSuccess');
   if (!form) return;
 
