@@ -41,6 +41,7 @@ body {
   font-size: 15px;
   line-height: 1.7;
   overflow-x: hidden;
+  cursor: none;
 }
 img { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
