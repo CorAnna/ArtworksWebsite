@@ -18,7 +18,7 @@
  */
 
 const SANITY_CONFIG = {
-  projectId: 'INSERISCI_IL_TUO_PROJECT_ID',  // ← es. "abc123xy"
+  projectId: 'a5jbwnvp',  // ← es. "abc123xy"
   dataset:   'production',
   apiVersion: '2024-01-01',
   // Token read-only opzionale (necessario se il dataset è privato)
