@@ -13,7 +13,7 @@ const DEMO_ARTWORKS = [
     _id: 'd1', slug: 'composizione-in-rosso',
     title: 'Composizione in Rosso', category: 'pittura',
     year: 2023, technique: 'Olio su tela', size: '80 × 100 cm',
-    description: 'Un'esplorazione del colore primario nella sua forma più pura, tra stratificazioni materiche e velature traslucide.',
+    description: "Un' esplorazione del colore primario nella sua forma più pura, tra stratificazioni materiche e velature traslucide.",
     image: { asset: { _ref: '' } },
     imageUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=600&q=80',
   },
