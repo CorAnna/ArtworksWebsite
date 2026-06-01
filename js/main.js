@@ -88,7 +88,7 @@ const GROQ_QUERY = `{
     description,
     image
   },
-  "settings": *[_type == "siteSettings"][0] {
+  "settings": *[_type == "site_settings"][0] {
     artistName,
     heroTitleLine1,
     heroTitleLine2Italic,
