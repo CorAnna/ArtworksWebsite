@@ -276,6 +276,68 @@ async function loadArtworks() {
   initLightbox();
 }
 
+/* ── APPLICA IMPOSTAZIONI SITO NELL'HTML ──────────────────────────────────── */
+function applySiteSettings(settings) {
+  // Nome Artista nell'Header e nel Footer
+  if (settings.artistName) {
+    const brandEl = document.querySelector('.header-brand');
+    const footerBrandEl = document.querySelector('.footer-brand');
+    if (brandEl) brandEl.textContent = settings.artistName;
+    if (footerBrandEl) footerBrandEl.textContent = settings.artistName;
+  }
+
+  // Sezione Hero (Testi e frasi d'impatto)
+  const heroLines = document.querySelectorAll('.hero-title-line');
+  if (heroLines.length >= 3) {
+    if (settings.heroTitleLine1) heroLines[0].textContent = settings.heroTitleLine1;
+    if (settings.heroTitleLine2Italic) heroLines[1].textContent = settings.heroTitleLine2Italic;
+    if (settings.heroTitleLine3) heroLines[2].textContent = settings.heroTitleLine3;
+  }
+  if (settings.heroSub) {
+    const heroSubEl = document.querySelector('.hero-sub');
+    if (heroSubEl) heroSubEl.textContent = settings.heroSub;
+  }
+
+  // Ri-esegue l'inizializzazione dell'animazione delle righe dell'hero dopo aver cambiato i testi
+  initHeroTitles();
+
+  // Sezione Chi Sono (About)
+  const aboutTitleEl = document.querySelector('.about-title');
+  const aboutBodyEl = document.querySelector('.about-body');
+  const aboutImgEl = document.querySelector('.about-img img');
+
+  if (settings.aboutTitle && aboutTitleEl) aboutTitleEl.textContent = settings.aboutTitle;
+  if (settings.aboutBody && aboutBodyEl) aboutBodyEl.textContent = settings.aboutBody;
+  if (settings.aboutImage?.asset?._ref && aboutImgEl) {
+    aboutImgEl.src = window.sanityImageUrl(settings.aboutImage.asset._ref, { width: 600, quality: 85 });
+  }
+
+  // Statistiche animate (assegna i target numerici per i counter)
+  const statNums = document.querySelectorAll('.stat-num');
+  if (statNums.length >= 3) {
+    if (settings.statArtworks !== undefined) statNums[0].dataset.target = settings.statArtworks;
+    if (settings.statExhibitions !== undefined) statNums[1].dataset.target = settings.statExhibitions;
+    if (settings.statYears !== undefined) statNums[2].dataset.target = settings.statYears;
+  }
+
+  // Sezione Contatti
+  const contactTitleEl = document.querySelector('.contact-title');
+  const contactSubEl = document.querySelector('.contact-sub');
+  if (settings.contactTitle && contactTitleEl) contactTitleEl.textContent = settings.contactTitle;
+  if (settings.contactSub && contactSubEl) contactSubEl.textContent = settings.contactSub;
+
+  // Links Social nel Footer
+  const instaLinks = document.querySelectorAll('a[href*="instagram.com"]');
+  const behanceLinks = document.querySelectorAll('a[href*="behance.net"]');
+  
+  if (settings.instagramUrl) {
+    instaLinks.forEach(link => link.href = settings.instagramUrl);
+  }
+  if (settings.behanceUrl) {
+    behanceLinks.forEach(link => link.href = settings.behanceUrl);
+  }
+}
+
 /* ── RENDER GRIGLIA ──────────────────────────────────────────────────────── */
 function renderGallery(artworks) {
   const grid  = document.getElementById('galleryGrid');
